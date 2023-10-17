@@ -1,0 +1,42 @@
+/* Aside Container */
+.aside {
+    background-color: #007bff;
+    color: white;
+    padding: 20px;
+    width: 150px;
+    text-align: center;
+  }
+  
+  .aside h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+  
+  /* Navigation Links */
+  .aside ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .aside li {
+    margin-bottom: 15px;
+  }
+  
+  .aside a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    transition: color 0.3s;
+  }
+  
+  .aside a:hover {
+    color: #f0f0f0;
+  }
+  
+  .aside img {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+  }
+  

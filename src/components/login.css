@@ -1,0 +1,41 @@
+.login-form {
+    width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .login-form input {
+    width: 80%;
+    padding: 10px;
+    margin: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .login-form button {
+    width: 100%;
+    padding: 10px;
+    margin:10px;
+    background-color: #000;
+    color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  .login-form button a {
+    text-decoration: none;
+    color:#fff
+  }
+  
+  .login-form .create-account-button {
+    background-color: #fff;
+    color: #000;
+  }
+  
+  .login-form input:focus,
+  .login-form button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+  }
+  

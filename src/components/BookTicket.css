@@ -1,0 +1,31 @@
+.station-selector {
+    width: 500px;
+    margin: 0 auto;
+  }
+  
+  .station-selector select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin:15px;
+  }
+  
+  .station-selector input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin:5px;
+    border-radius: 5px;
+  }
+  
+  .station-selector button {
+    width: 100%;
+    padding: 10px;
+    margin:10px;
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+  }
+  
