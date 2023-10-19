@@ -11,11 +11,12 @@ import TrainRoutes from './src/components/TrainRoutes'
 import TrainFares from './src/components/TrainFares'
 import Allroute from './src/components/Allroute'
 import Allseat from './src/components/Allseat'
+import TicketReservation from "./src/components/TicketReservation"
 import { createBrowserRouter, RouterProvider} from "react-router-dom" 
 
 const router = createBrowserRouter([
     { 
-     path: "/",
+     path: "/login",
      element: <Login/>
     },
     { 
@@ -57,11 +58,11 @@ const router = createBrowserRouter([
      {
       path:"/profile/selectseat/:trainId/:routeId",
       element:<Allseat/>
-     }
-    ]
+     },
+     {path:"/profile/ticket-reservation",
+      element:<TicketReservation/>}]
     }
-    
-])
+    ]);
 
 const AppLayout = () =>{
     return(

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from'react-router-dom';
+import { useParams, Link } from'react-router-dom';
 import axios from 'axios';
 import './Allseat.css';
 
@@ -16,19 +16,39 @@ const Allseat = () => {
      getData();
      
   }, [trainId,routeId]);
-    
+  
   return (
     <div>
       <h2>Seat Booking Details</h2>
+      <span className="businessclass">Business Class</span>
+      <hr></hr>
+      <span className="economyclass">Economy Class</span>
+      <hr></hr>
+      <span className="firstclass">First Class</span>
+      <hr></hr>
+      <span className="booked">Booked</span>
       <div>
         <h3>All Seats</h3>
         <ul className="seat-list">
-        {seatData?.map((seat) => (
-            <li key={seat.seat_id} className={(seat.seat_status === 'booked') ? 'booked' : 'available'}>
-                {
-                  (seat.seat_status === 'booked') ? `Seat Booked ${seat.seat_number}`: (<a href=""> Book Seat {seat.seat_number}</a>)
-                }
-          </li>
+          {seatData?.map((seat) => (
+            <li
+              key={seat.seat_id}
+              className={`${seat.wagon_class
+                .split(" ")
+                .join("")
+                .toLowerCase()}  ${
+                seat.seat_status === "booked" ? "booked" : "available"
+              }`}
+            >
+              {seat.seat_status === "booked" ? (
+                `Seat Booked ${seat.seat_number}`
+              ) : (
+                <Link to="/profile/ticket-reservation" state = {seat}>
+                 
+                  Book Seat {seat.seat_number}
+                </Link>
+              )}
+            </li>
           ))}
         </ul>
       </div>

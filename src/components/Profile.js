@@ -12,7 +12,7 @@ const Profile = () => {
       </div>
       <div style={{display:"flex",height: 'calc(100vh - 64.11px)'}}>
       <Aside/>
-      <Outlet />
+      <Outlet/>
       </div>
       </>
     );

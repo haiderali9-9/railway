@@ -4,10 +4,22 @@ import printlogo from './Assests/print.png';
 import trainschedule from './Assests/trainschedule.png';
 import traintrack from './Assests/traintrack.png';
 import trainfare from './Assests/trainfare.png'
-import {Link} from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import axios from "axios";
 import './Aside.css'; 
 
+
 const Aside = () => {
+  const navigate = useNavigate();
+  const logoutHandle = () =>{
+    const fetchData = async () => {
+     const response = await axios.get('http://localhost:3000/logout');
+     if(response.status == 200){
+        navigate('/login');
+     }
+    }
+    fetchData();
+}
   return (
     <aside className="aside">
       <h2>Navigation</h2>
@@ -42,6 +54,7 @@ const Aside = () => {
             Train Fares
           </Link>
         </li>
+        <button type="button" onClick={logoutHandle}>Sign Up</button>
       </ul>
     </aside>
   );

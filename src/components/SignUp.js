@@ -28,7 +28,7 @@ const SignUp = () => {
     setDateOfBirth('');
     setPassword('');
     setConfirmPassword('');
-    navigate("/");
+    navigate("/login");
     };
 
   return (

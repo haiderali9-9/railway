@@ -1,10 +1,11 @@
 import React from 'react';
+import { useEffect } from 'react';
 import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
-import './login.css'; 
 import { Link } from 'react-router-dom';
+import "./login.css"; 
 
-
+axios.defaults.withCredentials = true;
 const Login = () => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -16,8 +17,7 @@ const Login = () => {
       email,
       password
     };
-
-    const response = await axios.post('http://localhost:3000/',form_data);
+    const response = await axios.post('http://localhost:3000/login',form_data);
     if (response.status === 200) {
       localStorage.setItem('user', JSON.stringify(response.data));
       navigate('/profile');
@@ -26,6 +26,18 @@ const Login = () => {
     setPassword('');
     };
 
+  useEffect(() => {
+    const fetchData = async () => {
+    const response = await axios.get('http://localhost:3000/login');
+    const {loggedIn} = response.data;
+    console.log(response.data);
+    console.log(loggedIn);
+    if(loggedIn === true){
+      navigate('/profile');
+    }};
+    fetchData();
+  },[]);
+    
 
   return (
     <form className='login-form' onSubmit={handleSubmit}>

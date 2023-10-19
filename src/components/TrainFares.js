@@ -5,12 +5,12 @@ const TrainFares  = () => {
    const [trainfares, setTrainFares] = React.useState([]);
    React.useEffect(() => {
      const getData  = async () => {
-     const res = await axios.get('http://localhost:3000/train-fares');
-     setTrainFares(res.data);
+     const response = await axios.get('http://localhost:3000/train-fares');
+     setTrainFares(response.data);
      }
      getData();
    }, []);
-   console.log(trainfares);
+   
    return (
       <div>
         <table>
