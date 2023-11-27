@@ -19,10 +19,7 @@
     font-size: 16px;
     cursor: pointer; 
   }
-  .booked {
-    background-color: red; 
-    color: white; 
-  }
+  
   .available {
     background-color: green; 
     color: white; 
@@ -36,7 +33,11 @@
   .economyclass{
     background-color:orange;
   }
-
+  .booked {
+    background-color: red; 
+    color: white; 
+  }
+  
   a{
     text-decoration: none;
   }

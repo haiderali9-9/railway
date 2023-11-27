@@ -15,7 +15,7 @@ import TicketReservation from "./src/components/TicketReservation"
 import { createBrowserRouter, RouterProvider} from "react-router-dom" 
 
 const router = createBrowserRouter([
-    { 
+    {
      path: "/login",
      element: <Login/>
     },
@@ -59,8 +59,15 @@ const router = createBrowserRouter([
       path:"/profile/selectseat/:trainId/:routeId",
       element:<Allseat/>
      },
-     {path:"/profile/ticket-reservation",
-      element:<TicketReservation/>}]
+     {
+      path:"/profile/ticket-reservation",
+      element:<TicketReservation/>
+     },
+     {
+      path:"/profile/ticket-reservation/payment",
+      element:<SignUp/>
+     }
+    ]
     }
     ]);
 

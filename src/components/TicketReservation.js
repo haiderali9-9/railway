@@ -1,12 +1,15 @@
 import React,{useState} from "react";
-import {useLocation} from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import './TicketReservation.css'
 const TicketReservation = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  console.log(location);
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [cnic, setCnic] = useState("");
+  
   const handleSubmit = (event) => {
     event.preventDefault();
     const form_data = {
@@ -15,9 +18,15 @@ const TicketReservation = () => {
         cnic,
         seat_data:location.state
     }
-    const response = axios.post("http://localhost:3000/ticket-reservation", form_data);
+    const postdata = async () => {
+    const response = await axios.post("http://localhost:3000/ticket-reservation", form_data);
     console.log(response);
-   
+    if(response.status === 201){
+        navigate("/profile/ticket-reservation/payment");
+    }
+    
+    }
+   postdata();
   };
 
   return (
@@ -43,7 +52,7 @@ const TicketReservation = () => {
           value={cnic}
           onChange={(event) => setCnic(event.target.value)}
         />
-        <button type="submit">Submit</button>
+        <button type="submit">Proceed To Payment</button>
       </form>
     </div>
   );

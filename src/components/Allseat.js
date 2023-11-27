@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from'react-router-dom';
+import { useParams, Link, useLocation } from'react-router-dom';
 import axios from 'axios';
 import './Allseat.css';
 
 const Allseat = () => {
   const [seatData, setSeatData] = useState([]);
   const {trainId,routeId} = useParams();
+  const location = useLocation();
   
   useEffect(() => {
      const getData  = async () => {
         const response = await axios.get(`http://localhost:3000/seat-details/${trainId}/${routeId}`);
         setSeatData(response.data);
-        console.log(response.data);
      }
      getData();
      
@@ -43,7 +43,7 @@ const Allseat = () => {
               {seat.seat_status === "booked" ? (
                 `Seat Booked ${seat.seat_number}`
               ) : (
-                <Link to="/profile/ticket-reservation" state = {seat}>
+                <Link to="/profile/ticket-reservation" state = {[seat,location.state]}>
                  
                   Book Seat {seat.seat_number}
                 </Link>

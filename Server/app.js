@@ -35,7 +35,6 @@ app.use(session({
 
   
 app.get('/login', async (req,res) => {
-    console.log(req.session);
     if(req.session.user){
         res.send({loggedIn: true, user: req.session.user});
     } else {
@@ -131,10 +130,93 @@ app.get('/train-fares', async (req,res) => {
 });
 
 app.post("/ticket-reservation", async(req,res) => {
-    const data = req.body;
-    console.log(data);
+    const query = `
+    INSERT INTO ticket_reservation (passenger_id, passenger_name, phone_number, passenger_cnic, train_name, wagon_id, seat_id, seat_number, booking_date, seat_status)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`;
+    console.log(req.body);
+    const {name,phoneNumber,cnic,seat_data} = req.body;
+    const seat_detail = seat_data[0];
+    const route_detail = seat_data[1];
+    const {seat_id,wagon_id,seat_number,seat_status} = seat_detail;
+    const {train_name,id:routeId} = route_detail;
+    const booking_date = new Date();
+    const values = [
+      req?.session?.user?.passenger_id,
+      name,
+      phoneNumber,
+      cnic,
+      train_name,
+      wagon_id,
+      seat_id,
+      seat_number,
+      booking_date,
+      seat_status,
+    ];
+    await pool.query(query,values);
+    const query2 = `UPDATE seat
+          SET seat_status = 'booked' where route_id = $1 AND seat_number = $2`
+    await pool.query(query2,[routeId,seat_number]);
+    
+    if(routeId === 2 ){
+        const query = `UPDATE seat
+        SET seat_status = CASE WHEN route_id = 1  THEN 'booked'
+                         WHEN route_id = 3 THEN 'booked'
+                         ELSE seat_status
+                         END
+                         WHERE seat_number = $1`;
+    await pool.query(query,[seat_number]);
+    }
+
+    if(routeId === 1 || routeId === 3){
+        const query = `UPDATE seat
+        SET seat_status = CASE WHEN route_id = 2  THEN 'booked'
+                         ELSE seat_status
+                         END
+                         WHERE seat_number = $1`;
+    await pool.query(query, [seat_number]);
+    console.log(1);
+    }
+    if (routeId === 5) {
+      const query = `UPDATE seat
+        SET seat_status = CASE WHEN route_id = 4  THEN 'booked'
+                         WHEN route_id = 6 THEN 'booked'
+                         ELSE seat_status
+                         END
+                         WHERE seat_number = $1`;
+      await pool.query(query, [seat_number]);
+    }
+    if (routeId === 4 || routeId === 6) {
+      const query = `UPDATE seat
+        SET seat_status = CASE WHEN route_id = 5  THEN 'booked'
+                         ELSE seat_status
+                         END
+                         WHERE seat_number = $1`;
+      await pool.query(query, [seat_number]);
+    }
+    res.sendStatus(201);
+});
+
+app.get("/train-schedule", async (req, res) => {
+  const query = `
+      SELECT
+        ts.schedule_id,
+        t.name AS train_name,
+        s.name AS station_name,
+        ts.arrival_time,
+        ts.departure_time
+      FROM
+        train_schedule ts
+      JOIN
+        train t ON ts.train_id = t.id
+      JOIN
+        stations s ON ts.station_id = s.id;
+    `;
+  const result = await pool.query(query);
+  res.json(result.rows);
 });
 
 app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
 });
+
+  
