@@ -1,47 +1,94 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import ReactEcharts from "echarts-for-react";
 
-const TrainFares  = () => {
-   const [trainfares, setTrainFares] = React.useState([]);
-   React.useEffect(() => {
-     const getData  = async () => {
-     const response = await axios.get('http://localhost:3000/train-fares');
-     setTrainFares(response.data);
-     }
-     getData();
-   }, []);
-   
-   return (
-      <div>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Route Id </th>
-              <th>Class</th>
-              <th>Price</th>
-              <th>From Station</th>
-              <th>To Station</th>
-            </tr>
-          </thead>
-          <tbody>
-            {trainfares.map((fare) => (
-              <tr key={fare.fare_id}>
-                <td>{fare.fare_id}</td>
-                <td>{fare.fare_route_id}</td>
-                <td>{fare.fare_class}</td>
-                <td>{fare.fare_price}</td>
-                <td>{fare.from_station}</td>
-                <td>{fare.to_station}</td>
+const TrainFares = () => {
+  const [trainFares, setTrainFares] = useState([]);
+  const [routeOptions, setRouteOptions] = useState([]);
+  const [selectedRoute, setSelectedRoute] = useState("");
 
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
- 
-}
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/train-fares");
+        setTrainFares(response.data);
+
+        // Extract unique route_ids for filter options
+        const uniqueRouteIds = Array.from(
+          new Set(response.data.map((fare) => fare.fare_route_id))
+        );
+        setRouteOptions(uniqueRouteIds);
+      } catch (error) {
+        console.error("Error fetching train fares:", error);
+      }
+    };
+
+    getData();
+  }, []);
+
+  const handleRouteChange = (event) => {
+    setSelectedRoute(event.target.value);
+  };
+
+  // Filter fares based on the selected route
+  const filteredFares = selectedRoute
+    ? trainFares.filter(
+        (fare) => String(fare.fare_route_id) === String(selectedRoute)
+      )
+    : trainFares;
+
+  // Prepare data for ECharts
+  const chartData = filteredFares.map((fare) => ({
+    name: `ID: ${fare.fare_id}`,
+    value: fare.fare_price,
+  }));
+
+  const option = {
+    tooltip: {
+      trigger: "item",
+      formatter: "{a} <br/>{b} : {c} ({d}%)",
+    },
+    series: [
+      {
+        name: "Fare Price",
+        type: "pie",
+        radius: "55%",
+        center: ["50%", "50%"],
+        data: chartData,
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: "rgba(0, 0, 0, 0.5)",
+          },
+        },
+      },
+    ],
+  };
+
+  return (
+    <div>
+      <h2>Train Fares</h2>
+
+      {/* Route Filter Dropdown */}
+      <label htmlFor="routeFilter">Filter by Route ID:</label>
+      <select
+        id="routeFilter"
+        onChange={handleRouteChange}
+        value={selectedRoute}
+      >
+        <option value="">All Routes</option>
+        {routeOptions.map((routeId) => (
+          <option key={routeId} value={routeId}>
+            {routeId}
+          </option>
+        ))}
+      </select>
+
+      {/* ECharts Pie Chart */}
+      <ReactEcharts option={option} style={{ height: "400px" }} />
+    </div>
+  );
+};
 
 export default TrainFares;
-    
