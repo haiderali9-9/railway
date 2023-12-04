@@ -21,14 +21,18 @@ const SignUp = () => {
         password
     };
 
-    await axios.post('http://localhost:3000/signup',form_data);
-    setName('');
+    try {
+    await axios.post('http://localhost:3000/signup', form_data);
     setEmail('');
     setPhoneNumber('');
     setDateOfBirth('');
     setPassword('');
     setConfirmPassword('');
-    navigate("/login");
+    navigate('/login');
+  } catch (error) {
+    console.error('Error during signup:', error);
+    alert(error.response.data);
+  }
     };
 
   return (

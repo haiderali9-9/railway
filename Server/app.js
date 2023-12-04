@@ -58,10 +58,18 @@ app.post('/login', async (req,res) => {
 });
 
 app.post('/signup', async(req,res) => {
-    const {name, email, phoneNumber, dateOfBirth, password} = await req.body;
+  try{
+    const { name, email, phoneNumber, dateOfBirth, password } = await req.body;
     const query = `INSERT INTO passenger ( passenger_name, passenger_email, passenger_phone_number, passenger_date_of_birth, passenger_password) VALUES ($1, $2, $3, $4, $5)`;
-    await pool.query(query,[name, email, phoneNumber, dateOfBirth, password]);
+    await pool.query(query, [name, email, phoneNumber, dateOfBirth, password]);
     res.sendStatus(201);
+  }catch(error){
+    if(error.code === 'P0001'){
+      res.status(500).send("Invalid Phone format");
+      console.error("Invalid Phone format");
+    }
+  }
+    
 });
 
 app.get('/logout', async (req,res) => {
