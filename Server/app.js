@@ -131,10 +131,15 @@ app.get('/train-fares', async (req,res) => {
 
 app.post("/ticket-reservation", async(req,res) => {
     const query = `
-    INSERT INTO ticket_reservation (passenger_id, passenger_name, phone_number, passenger_cnic, train_name, wagon_id, seat_id, seat_number, booking_date, seat_status)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`;
+    INSERT INTO ticket_reservation (passenger_id, train_name, wagon_id, seat_id, seat_number, booking_date, seat_status)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)`;
     console.log(req.body);
-    const {name,phoneNumber,cnic,seat_data} = req.body;
+    let query_cnic = `
+        UPDATE passenger
+        SET passenger_cnic = $1
+        WHERE passenger_id = $2`;
+
+    const {cnic,seat_data} = req.body;
     const seat_detail = seat_data[0];
     const route_detail = seat_data[1];
     const {seat_id,wagon_id,seat_number,seat_status} = seat_detail;
@@ -142,9 +147,6 @@ app.post("/ticket-reservation", async(req,res) => {
     const booking_date = new Date();
     const values = [
       req?.session?.user?.passenger_id,
-      name,
-      phoneNumber,
-      cnic,
       train_name,
       wagon_id,
       seat_id,
@@ -153,6 +155,8 @@ app.post("/ticket-reservation", async(req,res) => {
       seat_status,
     ];
     await pool.query(query,values);
+    await pool.query(query_cnic, [cnic,req?.session?.user?.passenger_id]);
+    console.log(req?.session?.user?.passenger_id);
     const query2 = `UPDATE seat
           SET seat_status = 'booked' where route_id = $1 AND seat_number = $2`
     await pool.query(query2,[routeId,seat_number]);
@@ -213,6 +217,12 @@ app.get("/train-schedule", async (req, res) => {
     `;
   const result = await pool.query(query);
   res.json(result.rows);
+});
+
+const amountToPay = 50.0;
+
+app.get("/api/getAmountToPay", (req, res) => {
+  res.json({ amount: amountToPay });
 });
 
 app.listen(port, () => {

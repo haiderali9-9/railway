@@ -1,0 +1,43 @@
+.train-fares-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .flex-container {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+  }
+  
+  .chart-container {
+    flex: 1;
+    margin-right: 10px;
+  }
+  
+  .table-container {
+    flex: 1;
+    margin-left: 10px;
+    overflow: auto; 
+    max-height: 300px; 
+  }
+
+  .table-container table {
+    width: 90%;
+    border-collapse: collapse;
+  }
+  
+  .table-container th,
+  .table-container td {
+    border: 1px solid #ddd;
+    text-align: left;
+    width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .table-container th {
+    background-color: #f2f2f2;
+  }
+  

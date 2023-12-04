@@ -32,3 +32,23 @@ body{
     color: #333;
   }
   
+.profileContainer {
+  display: flex;
+  flex-direction: column;
+  flex-wrap:nowrap;
+  height: 100vh;
+}
+
+
+.contentWrapper {
+  display: flex;
+  flex: 1;
+  flex-wrap: nowrap;
+}
+.contentWrapper aside {
+  width:20%;
+}
+.contentWrapper div{
+  width:80%;
+}
+

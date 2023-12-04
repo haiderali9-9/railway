@@ -11,7 +11,9 @@ import TrainRoutes from './src/components/TrainRoutes'
 import TrainFares from './src/components/TrainFares'
 import Allroute from './src/components/Allroute'
 import Allseat from './src/components/Allseat'
+import Payment from './src/components/Payment'
 import TicketReservation from "./src/components/TicketReservation"
+
 import { createBrowserRouter, RouterProvider} from "react-router-dom" 
 
 const router = createBrowserRouter([
@@ -65,7 +67,7 @@ const router = createBrowserRouter([
      },
      {
       path:"/profile/ticket-reservation/payment",
-      element:<SignUp/>
+      element:<Payment/>
      }
     ]
     }
