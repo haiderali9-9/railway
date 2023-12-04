@@ -6,7 +6,9 @@ const port = process.env.PORT || 3000;
 const app = express();
 
 app.use(express.json());
-
+let routeNumber = 0;
+let routeClass;
+let ticketId;
 app.use(cors({
     origin: 'http://localhost:1234',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -68,6 +70,7 @@ app.post('/signup', async(req,res) => {
       res.status(500).send("Invalid Phone format");
       console.error("Invalid Phone format");
     }
+    
   }
     
 });
@@ -138,9 +141,13 @@ app.get('/train-fares', async (req,res) => {
 });
 
 app.post("/ticket-reservation", async(req,res) => {
+  const max = 678;
+  const min = 22;
+  let result = Math.random() * (max - min);
+  ticketId = Math.trunc(result * result);
     const query = `
-    INSERT INTO ticket_reservation (passenger_id, train_name, wagon_id, seat_id, seat_number, booking_date, seat_status)
-    VALUES ($1, $2, $3, $4, $5, $6, $7)`;
+    INSERT INTO ticket_reservation (ticket_id, passenger_id, train_name, wagon_id, seat_id, seat_number, booking_date, seat_status)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`;
     console.log(req.body);
     let query_cnic = `
         UPDATE passenger
@@ -150,10 +157,14 @@ app.post("/ticket-reservation", async(req,res) => {
     const {cnic,seat_data} = req.body;
     const seat_detail = seat_data[0];
     const route_detail = seat_data[1];
-    const {seat_id,wagon_id,seat_number,seat_status} = seat_detail;
+    const {seat_id,wagon_id,seat_number,seat_status,wagon_class} = seat_detail;
     const {train_name,id:routeId} = route_detail;
     const booking_date = new Date();
+    routeNumber = routeId;
+    routeClass = wagon_class;
+    console.log(route_detail);
     const values = [
+      ticketId,
       req?.session?.user?.passenger_id,
       train_name,
       wagon_id,
@@ -227,10 +238,45 @@ app.get("/train-schedule", async (req, res) => {
   res.json(result.rows);
 });
 
-const amountToPay = 50.0;
 
-app.get("/api/getAmountToPay", (req, res) => {
-  res.json({ amount: amountToPay });
+app.get("/getAmountToPay", async (req, res) => {
+  const query = {
+    text: "SELECT price FROM fares WHERE route_id = $1 AND class = $2",
+    values: [routeNumber, routeClass],
+  };
+  const result = await pool.query(query);
+  const amountToPay = result.rows[0].price;
+  res.send({ amount: amountToPay });
+});
+
+app.post("/makePayment", async (req, res) => {
+  try {
+    const { paymentAmount, paymentMethod} = req.body;
+    let paymentStatus = 'pay';
+    if (!paymentAmount || !paymentStatus || !paymentMethod || !ticketId) {
+      console.log(paymentMethod);
+      console.log(paymentAmount);
+      console.log(ticketId);
+      console.log(paymentStatus);
+      return res.status(400).json({ error: "Missing required fields." });
+    }
+    const insertQuery = {
+      text: `
+        INSERT INTO payment (payment_amount, payment_status, payment_method, ticket_id)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *
+      `,
+      values: [paymentAmount, paymentStatus, paymentMethod, ticketId],
+    };
+
+    const result = await pool.query(insertQuery);
+    const paymentId = result.rows[0].payment_id;
+
+    res.status(201).json({ paymentId, success: true, message: "Payment successful." });
+  } catch (error) {
+    console.error("Error making payment:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 app.listen(port, () => {

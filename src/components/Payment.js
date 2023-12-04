@@ -1,5 +1,3 @@
-// PaymentComponent.jsx
-
 import React, { useState, useEffect } from "react";
 
 const Payment = () => {
@@ -7,9 +5,8 @@ const Payment = () => {
   const [amountToPay, setAmountToPay] = useState(0);
 
   useEffect(() => {
-    // Fetch the amount to pay from the server using the useEffect hook
-    // Replace the URL with your actual server endpoint
-    fetch("/api/getAmountToPay")
+   
+    fetch("http://localhost:3000/getAmountToPay")
       .then((response) => response.json())
       .then((data) => {
         setAmountToPay(data.amount);
@@ -24,26 +21,23 @@ const Payment = () => {
   };
 
   const handlePayment = () => {
-    // Send payment data to the server
-    // Replace the URL with your actual server endpoint
-    fetch("/api/makePayment", {
+   
+    fetch("http://localhost:3000/makePayment", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         paymentMethod,
-        amount: amountToPay,
+        paymentAmount: amountToPay,
       }),
     })
       .then((response) => response.json())
       .then((data) => {
         console.log("Payment successful:", data);
-        // Handle success, e.g., redirect to a success page
       })
       .catch((error) => {
         console.error("Error making payment:", error);
-        // Handle error, e.g., display an error message to the user
       });
   };
 
