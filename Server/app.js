@@ -7,7 +7,7 @@ const app = express();
 
 app.use(express.json());
 let routeNumber = 0;
-let passenger_id;
+var passenger_id;
 let routeClass;
 var ticketId;
 
@@ -188,7 +188,7 @@ app.get('/train-fares', async (req,res) => {
 
 app.post("/ticket-reservation", async(req,res) => {
   try {
-    await client.query("BEGIN");
+    await pool.query("BEGIN");
     const max = 678;
     const min = 22;
     let result = Math.random() * (max - min);
@@ -209,7 +209,7 @@ app.post("/ticket-reservation", async(req,res) => {
       const booking_date = new Date();
       routeNumber = routeId;
       routeClass = wagon_class;
-      console.log(route_detail);
+      
       const values = [
         ticketId,
         passenger_id,
@@ -218,8 +218,8 @@ app.post("/ticket-reservation", async(req,res) => {
         booking_date,
       ];
       await pool.query(query,values);
-      await pool.query(query_cnic, [cnic,req?.session?.user?.passenger_id]);
-      console.log(req?.session?.user?.passenger_id);
+      await pool.query(query_cnic, [cnic,passenger_id]);
+     
       const query2 = `UPDATE seat
             SET seat_status = 'booked' where route_id = $1 AND seat_number = $2`
       await pool.query(query2,[routeId,seat_number]);
@@ -241,7 +241,7 @@ app.post("/ticket-reservation", async(req,res) => {
                            END
                            WHERE seat_number = $1`;
       await pool.query(query, [seat_number]);
-      console.log(1);
+      
       }
       if (routeId === 5) {
         const query = `UPDATE seat
@@ -260,13 +260,17 @@ app.post("/ticket-reservation", async(req,res) => {
                            WHERE seat_number = $1`;
         await pool.query(query, [seat_number]);
       }
-      await client.query("COMMIT");
+      await pool.query("COMMIT");
       res.sendStatus(201);
   } catch (error) {
-    await client.query("ROLLBACK");
+    // await pool.query("ROLLBACK");
+    if (error.code === 'P0001') {
+      res.status(500).send("Invalid CNIC format");
+      console.error("Invalid CNIC format");
+    } else {
     console.error('Error in /ticket-reservation route:', error);
     res.status(500).json({ error: 'Internal Server Error' });
-  }
+    }}
 });
 
 app.get("/train-schedule", async (req, res) => {
@@ -311,7 +315,7 @@ app.get("/getAmountToPay", async (req, res) => {
 
 app.post("/makePayment", async (req, res) => {
   try {
-    await client.query("BEGIN");
+    await pool.query("BEGIN");
     const { paymentAmount, paymentMethod} = req.body;
     let paymentStatus = 'pay';
     if (!paymentAmount || !paymentStatus || !paymentMethod || !ticketId) {
@@ -328,12 +332,12 @@ app.post("/makePayment", async (req, res) => {
     };
 
     const result = await pool.query(insertQuery);
-    await client.query("COMMIT");
+    await pool.query("COMMIT");
     const paymentId = result.rows[0].payment_id;
 
     res.status(201).json({ paymentId, success: true, message: "Payment successful." });
   } catch (error) {
-     await client.query("ROLLBACK");
+     await pool.query("ROLLBACK");
     console.error('Error in /makePayment route:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
