@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Payment = () => {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [amountToPay, setAmountToPay] = useState(0);
-
+  const navigate = useNavigate();
   useEffect(() => {
    
     fetch("http://localhost:3000/getAmountToPay")
@@ -34,6 +35,8 @@ const Payment = () => {
     })
       .then((response) => response.json())
       .then((data) => {
+        alert("Payment successful");
+        navigate("/profile");
         console.log("Payment successful:", data);
       })
       .catch((error) => {

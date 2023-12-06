@@ -54,7 +54,7 @@ const Aside = () => {
             Train Fares
           </Link>
         </li>
-        <button type="button" onClick={logoutHandle}>Sign Up</button>
+        <button type="button" onClick={logoutHandle}>Log Out</button>
       </ul>
     </aside>
   );

@@ -7,8 +7,10 @@ const app = express();
 
 app.use(express.json());
 let routeNumber = 0;
+let passenger_id;
 let routeClass;
-let ticketId;
+var ticketId;
+
 app.use(cors({
     origin: 'http://localhost:1234',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -38,6 +40,7 @@ app.use(session({
   
 app.get('/login', async (req,res) => {
     if(req.session.user){
+        passenger_id = req?.session?.user?.passenger_id;
         res.send({loggedIn: true, user: req.session.user});
     } else {
         res.send({loggedIn: false});
@@ -53,6 +56,7 @@ app.post('/login', async (req,res) => {
     if (results.rows.length > 0) {
       const user = results.rows[0];
       req.session.user = user;
+      passenger_id = req?.session?.user?.passenger_id;
       res.status(200).json(user);
     } else {
       res.status(401).json({message: 'Invalid credentials'});
@@ -117,7 +121,7 @@ app.get('/train-routes', async (req, res) => {
 
 app.get('/seat-details/:trainId/:routeId', async (req,res) => {
     const routeId = req.params.routeId;
-    const query = `SELECT s.seat_id, s.wagon_id, s.seat_number, s.route_id, s.seat_status, w.wagon_class  FROM seat s
+    const query = `SELECT s.seat_id, s.wagon_id, s.seat_number, s.route_id, s.seat_status, w.wagon_class, w.train_id  FROM seat s
      JOIN wagon w ON s.wagon_id = w.wagon_id
      WHERE route_id = $1`;
     const results = await pool.query(query, [routeId]);
@@ -146,8 +150,8 @@ app.post("/ticket-reservation", async(req,res) => {
   let result = Math.random() * (max - min);
   ticketId = Math.trunc(result * result);
     const query = `
-    INSERT INTO ticket_reservation (ticket_id, passenger_id, train_name, wagon_id, seat_id, seat_number, booking_date, seat_status)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`;
+    INSERT INTO ticket_reservation (ticket_id, passenger_id, train_id, seat_id, booking_date)
+    VALUES ($1, $2, $3, $4, $5)`;
     console.log(req.body);
     let query_cnic = `
         UPDATE passenger
@@ -157,21 +161,18 @@ app.post("/ticket-reservation", async(req,res) => {
     const {cnic,seat_data} = req.body;
     const seat_detail = seat_data[0];
     const route_detail = seat_data[1];
-    const {seat_id,wagon_id,seat_number,seat_status,wagon_class} = seat_detail;
-    const {train_name,id:routeId} = route_detail;
+    const {seat_id,seat_number,wagon_class,train_id} = seat_detail;
+    const {id:routeId} = route_detail;
     const booking_date = new Date();
     routeNumber = routeId;
     routeClass = wagon_class;
     console.log(route_detail);
     const values = [
       ticketId,
-      req?.session?.user?.passenger_id,
-      train_name,
-      wagon_id,
+      passenger_id,
+      train_id,
       seat_id,
-      seat_number,
       booking_date,
-      seat_status,
     ];
     await pool.query(query,values);
     await pool.query(query_cnic, [cnic,req?.session?.user?.passenger_id]);
@@ -254,10 +255,7 @@ app.post("/makePayment", async (req, res) => {
     const { paymentAmount, paymentMethod} = req.body;
     let paymentStatus = 'pay';
     if (!paymentAmount || !paymentStatus || !paymentMethod || !ticketId) {
-      console.log(paymentMethod);
-      console.log(paymentAmount);
-      console.log(ticketId);
-      console.log(paymentStatus);
+    
       return res.status(400).json({ error: "Missing required fields." });
     }
     const insertQuery = {
