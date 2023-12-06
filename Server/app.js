@@ -277,6 +277,45 @@ app.post("/makePayment", async (req, res) => {
   }
 });
 
+app.get("/print_ticket", async (req, res) => {
+  try {
+    
+    const { rows } = await pool.query(
+      `
+      SELECT
+          tr.reservation_id AS ticket_id,
+          tr.passenger_id,
+          tr.seat_id,
+          tr.booking_date,
+          p.passenger_name,
+          p.passenger_email,
+          s.wagon_id,
+          t.name AS train_name
+      FROM
+          ticket_reservation tr
+      JOIN
+          passenger p ON tr.passenger_id = p.passenger_id
+      JOIN
+          seat s ON tr.seat_id = s.seat_id
+      JOIN
+          routes r ON r.id = s.route_id
+      JOIN
+          train t ON t.id = r.train_id
+      WHERE
+          tr.passenger_id = $1
+    `,
+      [passenger_id]
+    );
+
+    
+    res.json(rows);
+  } catch (error) {
+    
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
 });
